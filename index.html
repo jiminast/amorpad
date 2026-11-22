@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>AMORPAD — Ammora Launchpad Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #0b0f14;
+        --bg-soft: #10161d;
+        --surface: #141c24;
+        --surface-2: #1a242e;
+        --line: #26313c;
+        --ink: #eef4f1;
+        --muted: #93a5ad;
+        --faint: #6b7d86;
+        --accent: #2fd08c;
+        --accent-ink: #06281a;
+        --accent-soft: rgba(47, 208, 140, 0.12);
+        --warn: #f5b301;
+        --warn-ink: #241a00;
+        --warn-soft: rgba(245, 179, 1, 0.12);
+        --bad: #ff6b5e;
+        --bad-soft: rgba(255, 107, 94, 0.12);
+        --radius: 14px;
+        --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+        --sans: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+      }
+      @media (prefers-color-scheme: light) {
+        :root {
+          --bg: #f2f5f3;
+          --bg-soft: #e9efec;
+          --surface: #ffffff;
+          --surface-2: #f4f7f5;
+          --line: #d8e0db;
+          --ink: #101a14;
+          --muted: #55665d;
+          --faint: #7d8d84;
+          --accent: #0d9d66;
+          --accent-ink: #ffffff;
+          --accent-soft: rgba(13, 157, 102, 0.1);
+          --warn: #9a6d00;
+          --warn-ink: #ffffff;
+          --warn-soft: rgba(245, 179, 1, 0.16);
+          --bad: #c93a30;
+          --bad-soft: rgba(201, 58, 48, 0.09);
+        }
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        font-family: var(--sans);
+        background: var(--bg);
+        color: var(--ink);
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
+      }
+      button, [role="button"], select, summary, input:not([type="checkbox"], [type="radio"]) { min-height: 2.75rem; }
+      a { color: var(--accent); }
+
+      .demo-banner {
+        background: var(--warn);
+        color: var(--warn-ink);
+        font-weight: 800;
+        font-size: 0.8rem;
+        letter-spacing: 0.01em;
+        text-align: center;
+        padding: 0.6rem 1rem;
+      }
+      .demo-banner .mono { font-weight: 600; }
+
+      .wrap { max-width: 1080px; margin: 0 auto; padding: 0 1rem 3.5rem; }
+
+      header.site {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 1.75rem 0 1.25rem;
+      }
+      .wordmark {
+        font-size: clamp(2rem, 6vw, 2.9rem);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1;
+        margin: 0;
+      }
+      .wordmark .pad { color: var(--accent); }
+      .tagline { color: var(--muted); margin: 0.45rem 0 0; max-width: 34rem; font-size: 0.95rem; }
+      .net-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+      .chip {
+        font-family: var(--mono);
+        font-size: 0.72rem;
+        font-weight: 600;
+        border: 1px solid var(--line);
+        background: var(--surface);
+        border-radius: 999px;
+        padding: 0.4rem 0.75rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+      }
+      .chip .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex: none; }
+
+      nav.tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        padding: 0.35rem;
+        background: var(--bg-soft);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        margin-bottom: 1.5rem;
+      }
+      nav.tabs button {
+        flex: 1 1 auto;
+        border: 0;
+        background: transparent;
+        color: var(--muted);
+        font: inherit;
+        font-weight: 700;
+        font-size: 0.9rem;
+        padding: 0.55rem 1.05rem;
+        border-radius: 999px;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+      nav.tabs button[aria-selected="true"] { background: var(--surface-2); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
+      nav.tabs button:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+        outline: 2px solid var(--accent); outline-offset: 2px;
+      }
+
+      .page { display: none; }
+      .page.active { display: block; }
+
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 1.4rem;
+        margin-bottom: 1.1rem;
+      }
+      .card h2 { margin: 0 0 0.6rem; font-size: 1.3rem; letter-spacing: -0.01em; }
+      .card h3 { margin: 1.2rem 0 0.4rem; font-size: 1.02rem; }
+      .card p { margin: 0.4rem 0; }
+      .muted { color: var(--muted); }
+      .small { font-size: 0.85rem; }
+      .mono { font-family: var(--mono); }
+      code { font-family: var(--mono); font-size: 0.82em; background: var(--bg-soft); padding: 0.1em 0.4em; border-radius: 5px; word-break: break-all; }
+
+      .badge {
+        display: inline-block;
+        font-size: 0.68rem;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        border-radius: 5px;
+        padding: 0.18rem 0.5rem;
+        margin-right: 0.45rem;
+        vertical-align: 0.12em;
+        background: var(--warn);
+        color: var(--warn-ink);
+      }
+      .badge.green { background: var(--accent); color: var(--accent-ink); }
+      .badge.red { background: var(--bad); color: #fff; }
+
+      /* Discover */
+      .token-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; margin-top: 1rem; }
+      .token {
+        background: var(--surface-2);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 1.1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.7rem;
+      }
+      .token-top { display: flex; align-items: center; gap: 0.8rem; }
+      .avatar {
+        width: 46px; height: 46px; border-radius: 12px; flex: none;
+        display: grid; place-items: center;
+        font-weight: 800; font-size: 0.95rem;
+        background: var(--accent-soft); color: var(--accent);
+        border: 1px solid var(--line);
+      }
+      .token-name { font-weight: 800; font-size: 1.05rem; line-height: 1.2; }
+      .token-sym { font-family: var(--mono); color: var(--muted); font-size: 0.85rem; }
+      .status-pill {
+        margin-left: auto; flex: none;
+        font-size: 0.7rem; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase;
+        padding: 0.3rem 0.6rem; border-radius: 999px;
+        background: var(--warn-soft); color: var(--warn);
+      }
+      .status-pill.ready { background: var(--accent-soft); color: var(--accent); }
+      .status-pill.grad { background: var(--accent); color: var(--accent-ink); }
+      .token-desc { color: var(--muted); font-size: 0.9rem; margin: 0; }
+      .stat-row { display: flex; justify-content: space-between; gap: 1rem; font-size: 0.88rem; }
+      .stat-row .k { color: var(--faint); }
+      .stat-row .v { font-family: var(--mono); font-weight: 600; }
+      .bar { background: var(--bg); border-radius: 999px; height: 9px; overflow: hidden; }
+      .bar-fill { background: var(--accent); height: 100%; border-radius: 999px; }
+      .bar-label { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--muted); margin-top: 0.35rem; }
+      .btn {
+        border: 0; border-radius: 10px; cursor: pointer;
+        font: inherit; font-weight: 800; font-size: 0.92rem;
+        padding: 0.65rem 1.15rem;
+        background: var(--accent); color: var(--accent-ink);
+      }
+      .btn.ghost { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
+      .btn:disabled { background: var(--bg-soft); color: var(--faint); box-shadow: inset 0 0 0 1px var(--line); cursor: not-allowed; }
+      .token .btn { margin-top: auto; }
+
+      ol.steps, ul.plain { margin: 0.5rem 0; padding-left: 1.3rem; }
+      ol.steps li, ul.plain li { margin: 0.35rem 0; }
+
+      /* Forms */
+      label.field { display: block; font-weight: 700; font-size: 0.92rem; margin: 1rem 0 0; }
+      label.field .hint { display: block; font-weight: 500; color: var(--muted); font-size: 0.82rem; margin-top: 0.15rem; }
+      input, select, textarea {
+        display: block; width: 100%; margin-top: 0.4rem;
+        padding: 0.65rem 0.8rem; border-radius: 10px;
+        border: 1px solid var(--line); background: var(--bg);
+        color: var(--ink); font: inherit; font-size: 0.95rem;
+      }
+      textarea { min-height: 5.5rem; resize: vertical; }
+      .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.2rem; }
+      @media (max-width: 620px) { .form-grid { grid-template-columns: 1fr; } }
+      .btn-row { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1.3rem; }
+      .preview-box {
+        border: 1.5px dashed var(--accent);
+        background: var(--accent-soft);
+        border-radius: var(--radius);
+        padding: 1.1rem; margin-top: 1.2rem;
+      }
+      .preview-box h3 { margin-top: 0; }
+      .token-img { max-width: 150px; border-radius: 10px; margin: 0.5rem 0; display: block; border: 1px solid var(--line); }
+      .warn-text { color: var(--warn); font-weight: 600; }
+      .bad-text { color: var(--bad); font-weight: 600; }
+      .ok-text { color: var(--accent); font-weight: 600; }
+
+      /* Tables — reflow to stacked rows on phones */
+      .table-scroll { margin: 0.8rem 0; }
+      table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+      th, td { text-align: left; padding: 0.6rem 0.7rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+      th { color: var(--faint); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; }
+      td.num, th.num { font-family: var(--mono); }
+      @media (max-width: 680px) {
+        table, thead, tbody, tr, th, td { display: block; }
+        thead { position: absolute; left: -9999px; }
+        tr { border: 1px solid var(--line); border-radius: 10px; padding: 0.5rem 0.2rem; margin-bottom: 0.7rem; background: var(--surface-2); }
+        td { border-bottom: 0; padding: 0.35rem 0.7rem; }
+        td::before { content: attr(data-th); display: block; color: var(--faint); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; margin-bottom: 0.1rem; }
+      }
+
+      .quote-out {
+        background: var(--bg-soft); border: 1px solid var(--line);
+        border-radius: var(--radius); padding: 1rem 1.1rem; margin-top: 1rem;
+      }
+      .quote-out .stat-row { padding: 0.3rem 0; }
+
+      .checklist { list-style: none; margin: 0.6rem 0; padding: 0; }
+      .checklist li { padding: 0.75rem 0.9rem; border: 1px solid var(--line); border-radius: 10px; margin-bottom: 0.6rem; background: var(--surface-2); font-size: 0.93rem; }
+      .checklist li.blocked { border-color: var(--bad); background: var(--bad-soft); }
+      .checklist li.done { border-color: var(--accent); }
+
+      footer.site { color: var(--faint); font-size: 0.85rem; margin-top: 2rem; border-top: 1px solid var(--line); padding-top: 1.2rem; }
+      @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+    </style>
+  </head>
+  <body>
+    <div class="demo-banner">
+      DEMO · GIWA SEPOLIA TESTNET · <span class="mono">@ammora-protocol/sdk@0.3.9</span> · <span class="mono">AMMORA_SEND=0</span> — read-only, tidak ada transaksi live, tidak perlu wallet untuk melihat. Data sampel berlabel SAMPLE.
+    </div>
+
+    <div class="wrap">
+      <header class="site">
+        <div>
+          <h1 class="wordmark">AMOR<span class="pad">PAD</span></h1>
+          <p class="tagline">Launchpad yang dibangun dengan Ammora SDK — demo lokal untuk Ammora Builder Mission (ammora.org Season 2), untuk direview sebelum ada langkah live apa pun.</p>
+        </div>
+        <div class="net-chips">
+          <span class="chip"><span class="dot"></span>GIWA Sepolia · 91342</span>
+          <span class="chip">Protocol V4</span>
+          <span class="chip">Testnet</span>
+        </div>
+      </header>
+
+      <nav class="tabs" role="tablist" aria-label="Halaman AMORPAD">
+        <button role="tab" data-page="discover" aria-selected="true">Discover</button>
+        <button role="tab" data-page="create" aria-selected="false">Create Token</button>
+        <button role="tab" data-page="trade" aria-selected="false">Trade</button>
+        <button role="tab" data-page="graduation" aria-selected="false">Graduation</button>
+        <button role="tab" data-page="fees" aria-selected="false">Fees &amp; Claims</button>
+        <button role="tab" data-page="operator" aria-selected="false">Operator Setup</button>
+      </nav>
+
+      <main>
+        <!-- ============ DISCOVER ============ -->
+        <section class="page active" id="page-discover" role="tabpanel">
+          <div class="card">
+            <h2>Discover launches</h2>
+            <p><span class="badge">Sample data</span>Semua token di bawah ini data demo rekaan. Tidak ada yang eksis on-chain dan tidak ada yang bisa dibeli.</p>
+            <div class="token-grid" id="tokenGrid"></div>
+          </div>
+          <div class="card">
+            <h2>Cara launch bekerja di sini (Ammora V4, GIWA Sepolia)</h2>
+            <ol class="steps">
+              <li>Operator membuat satu Config yang bisa dipakai ulang (penerima fee, mode graduation).</li>
+              <li>Creator menerbitkan token — token baru dengan kurva ALC pra-graduation.</li>
+              <li>Orang jual/beli di kurva ALC.</li>
+              <li>Saat net quote reserve mencapai target graduation, launch berstatus ReadyToMigrate.</li>
+              <li>Transaksi migrasi terpisah membuat pool ARL pasca-graduation dan posisi LP.</li>
+              <li>Trading lanjut di ARL; fee Creator, Partner, dan LP bisa diklaim dari FeeVault.</li>
+            </ol>
+            <p class="muted small">Siklus hidup sesuai panduan launchpad Ammora Docs (SDK 0.3.9). Demo ini tidak menjalankan satu pun langkah tersebut on-chain.</p>
+          </div>
+        </section>
+
+        <!-- ============ CREATE ============ -->
+        <section class="page" id="page-create" role="tabpanel">
+          <div class="card">
+            <h2>Create a token — preview only</h2>
+            <p><span class="badge">Preview only</span>Form ini hanya membangun preview. <strong>Tidak</strong> membuat token, tidak menandatangani apa pun, dan tidak mengirim transaksi.</p>
+            <div class="form-grid">
+              <label class="field" for="cName">Token name
+                <input id="cName" type="text" value="Demo Token" aria-label="Token name" />
+              </label>
+              <label class="field" for="cSymbol">Symbol
+                <input id="cSymbol" type="text" value="DEMO" maxlength="10" aria-label="Symbol" />
+              </label>
+            </div>
+            <label class="field" for="cDesc">Description
+              <textarea id="cDesc" placeholder="Token ini untuk apa?" aria-label="Description"></textarea>
+            </label>
+            <label class="field" for="cImage">Token image
+              <span class="hint">Preview lokal saja — file tidak pernah keluar dari browser di demo ini.</span>
+              <input id="cImage" type="file" accept="image/*" aria-label="Token image" />
+            </label>
+            <img id="cImagePreview" class="token-img" alt="Preview gambar token" hidden />
+            <div class="form-grid">
+              <label class="field" for="cCreator">Creator fee share (%)
+                <input id="cCreator" type="number" min="0" max="100" value="70" aria-label="Creator fee share (%)" />
+              </label>
+              <label class="field" for="cPartner">Partner fee share (%)
+                <input id="cPartner" type="number" min="0" max="100" value="30" aria-label="Partner fee share (%)" />
+              </label>
+            </div>
+            <p class="muted small">Penerima fee diisi sebagai persentase untuk preview. Alamat wallet penerima yang asli adalah keputusan owner dan <strong>tidak</strong> dimasukkan di demo ini — jangan pernah tempel private key atau seed phrase di mana pun.</p>
+            <div class="btn-row">
+              <button class="btn" id="cShow">Show preview</button>
+              <button class="btn" disabled title="Nonaktif di demo — pembuatan live butuh Config yang sudah direview dan wallet terhubung">Create on-chain (disabled in demo)</button>
+            </div>
+            <div class="preview-box" id="cPreview" hidden>
+              <h3 id="pvTitle">Preview</h3>
+              <img id="pvImage" class="token-img" alt="Preview gambar token" hidden />
+              <p id="pvDesc" class="muted"></p>
+              <p id="pvShares"></p>
+              <p>Graduation target (default untuk direview): <strong>6,5 WETH</strong> di net quote reserve — bukan target market cap.</p>
+              <p>Graduation mode: dipilih operator (Concentrated atau Compounding).</p>
+              <p class="warn-text">Config: placeholder policy yang harus dikualifikasi operator. Config #6 DIBLOKIR (lihat halaman Graduation) dan tidak pernah dipakai. Belum ada Config live — membuatnya adalah langkah owner.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ TRADE ============ -->
+        <section class="page" id="page-trade" role="tabpanel">
+          <div class="card">
+            <h2>Trade — simulated quote</h2>
+            <p><span class="badge">Simulated quote</span>Quote ini perhitungan constant-product biasa di atas reserve <strong>sampel</strong>. Ini <strong>bukan</strong> quote Ammora SDK dan bukan harga on-chain. Tidak ada fungsi quote SDK yang dipanggil di demo ini karena belum ada kurva/Config live untuk di-quote, dan tidak ada trade yang bisa dieksekusi di sini.</p>
+            <label class="field" for="tSelect">Token
+              <select id="tSelect" aria-label="Token"></select>
+            </label>
+            <p class="small muted" id="tReserves"></p>
+            <label class="field" for="tPay">Pay (WETH, jumlah sampel)
+              <input id="tPay" type="number" min="0" step="0.01" value="0.1" aria-label="Pay (WETH, jumlah sampel)" />
+            </label>
+            <div class="quote-out" aria-live="polite">
+              <div class="stat-row"><span class="k">You pay (simulated)</span><span class="v" id="qPay">—</span></div>
+              <div class="stat-row"><span class="k">You would receive (simulated)</span><span class="v" id="qReceive">—</span></div>
+              <div class="stat-row"><span class="k">Effective price (simulated)</span><span class="v" id="qPrice">—</span></div>
+              <div class="stat-row"><span class="k">Price impact (simulated)</span><span class="v" id="qImpact">—</span></div>
+            </div>
+            <div class="btn-row">
+              <button class="btn" disabled title="Nonaktif di demo — tidak ada wallet, tidak ada transaksi">Buy (disabled in demo)</button>
+              <button class="btn ghost" disabled title="Nonaktif di demo — tidak ada wallet, tidak ada transaksi">Sell (disabled in demo)</button>
+            </div>
+            <p class="muted small">Trading beneran di GIWA Sepolia berjalan lewat kontrak launch Ammora V4 (factory <code>0x35353a2Dab7426EcCAe6f5FB267702a542ab68fA</code>) dengan wallet terhubung dan GIWA test ETH untuk gas. Alur itu tidak dipasang di demo ini.</p>
+          </div>
+          <div class="card">
+            <h2>Verified deployment (real SDK data)</h2>
+            <p class="muted small">Dari <code>@ammora-protocol/sdk@0.3.9</code>, diverifikasi oleh <code>scripts/verify-deployment.mjs</code> pada 22 Nov 2026, 10:52 WIB — termasuk cek RPC read-only live yang mengembalikan chain id 91342.</p>
+            <div class="table-scroll">
+              <table>
+                <tbody>
+                  <tr><td data-th="Item">Chain</td><td>GIWA Sepolia (91342) — testnet</td></tr>
+                  <tr><td data-th="Item">RPC</td><td><code>https://sepolia-rpc.giwa.io</code></td></tr>
+                  <tr><td data-th="Item">Explorer</td><td><a href="https://sepolia-explorer.giwa.io" target="_blank" rel="noopener">sepolia-explorer.giwa.io</a></td></tr>
+                  <tr><td data-th="Item">Launch protocol</td><td>V4 · slot <span class="mono">v4-auto-route-20260917</span></td></tr>
+                  <tr><td data-th="Item">Launch factory</td><td><code>0x35353a2Dab7426EcCAe6f5FB267702a542ab68fA</code></td></tr>
+                  <tr><td data-th="Item">Fee policy</td><td><code>0x17B44C14F640fD429740FA3220f47a567c62725C</code></td></tr>
+                  <tr><td data-th="Item">Config registry</td><td><code>0x6d043014972b87406C4757a5f2d655A24e0b0aF9</code></td></tr>
+                  <tr><td data-th="Item">Graduation adapter</td><td><code>0xF1A0f23036Aae88EEcecd1D9205Dd78c388fe263</code></td></tr>
+                  <tr><td data-th="Item">WETH (wrapped native)</td><td><code>0x4200000000000000000000000000000000000006</code></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ GRADUATION ============ -->
+        <section class="page" id="page-graduation" role="tabpanel">
+          <div class="card">
+            <h2>Graduation status</h2>
+            <p>Graduation target (default yang direkomendasikan, untuk direview): <strong>6,5 WETH</strong> di net quote reserve kurva.</p>
+            <p class="muted small">Default yang direkomendasikan untuk launchpad baru: 6,5 WETH di net quote reserve kurva. Ini default untuk direview, BUKAN policy live dan BUKAN target market cap.</p>
+            <p class="muted small">Mencapai target berarti ReadyToMigrate; hanya migrasi yang selesai dan terverifikasi yang menciptakan status graduated-pool.</p>
+            <div class="table-scroll">
+              <table>
+                <thead><tr><th>Token (sample)</th><th>Reserve</th><th>Progress</th><th>Status</th></tr></thead>
+                <tbody id="gradRows"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card">
+            <h2>Graduation readiness checklist</h2>
+            <ul class="checklist">
+              <li class="blocked"><span class="badge red">Blocked</span><strong>Config #6 — JANGAN DIPAKAI.</strong> Registry <code>0x6d043014972b87406C4757a5f2d655A24e0b0aF9</code>, Config #6, hash <code>0x6048908774397e0691bb0e19f72dabb790eb0d892d6081d3622b39e7f738e667</code>. Pemberitahuan graduation-readiness di docs: policy ini bisa menjual seluruh base inventory dan menggagalkan migrasi. Jangan pernah dipakai untuk launch baru.</li>
+              <li><span class="badge">Pending</span><strong>Operator-qualified policy</strong> — belum dipilih. Operator harus mengualifikasi Config (graduation reserve turunan, migrationBaseThreshold = 0) sebelum launch live apa pun.</li>
+              <li><span class="badge">Pending</span><strong>Graduation mode</strong> — Concentrated (0) vs Compounding (1) belum dipilih. Keduanya memilih workflow pool/posisi tujuan yang berbeda.</li>
+              <li class="done"><span class="badge green">Verified</span><strong>SDK deployment terverifikasi</strong> — GIWA Sepolia 91342, V4, testnet (lihat halaman Trade).</li>
+              <li><span class="badge">Pending</span><strong>Migration</strong> — transaksi terpisah setelah ReadyToMigrate; tidak dijalankan di demo ini.</li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- ============ FEES ============ -->
+        <section class="page" id="page-fees" role="tabpanel">
+          <div class="card">
+            <h2>Fees &amp; claims — explainer only</h2>
+            <p><span class="badge">Explainer only</span>Tidak ada fee di demo ini dan tidak ada klaim yang bisa dilakukan di sini. Halaman ini menjelaskan alurnya dari Ammora Docs supaya operator bisa memutuskan setup aslinya.</p>
+            <h3>Siapa yang dibayar</h3>
+            <ul class="plain">
+              <li><strong>Creator</strong> — pembuat token, sesuai penerima fee di Config.</li>
+              <li><strong>Partner</strong> — operator launchpad/partner, sesuai Config.</li>
+              <li><strong>Protocol</strong> — bagian protokol Ammora, sesuai kontrak fee policy.</li>
+              <li><strong>Liquidity providers</strong> — pemegang LP NFT di pool ARL pasca-graduation.</li>
+            </ul>
+            <h3>Di mana fee berada</h3>
+            <p>Fee trading terakumulasi di FeeVault (Creator / Partner) dan di posisi LP setelah graduation. Klaim adalah aksi on-chain terpisah, masing-masing butuh wallet terhubung dan transaksi — tidak ada yang dipasang di demo ini.</p>
+            <h3>Yang dibutuhkan klaim live</h3>
+            <ol class="steps">
+              <li>Config asli dengan alamat penerima fee asli (keputusan owner).</li>
+              <li>Pool yang sudah graduate dengan fee terakumulasi.</li>
+              <li>Wallet yang berhak terhubung, dan transaksi klaim yang ditandatangani.</li>
+              <li>Cek receipt: pastikan klaim benar-benar sampai — preview atau halaman yang terlihat sukses bukan bukti.</li>
+            </ol>
+          </div>
+        </section>
+
+        <!-- ============ OPERATOR ============ -->
+        <section class="page" id="page-operator" role="tabpanel">
+          <div class="card">
+            <h2>Operator setup — yang masih dibutuhkan untuk live</h2>
+            <p>Demo ini adalah langkah lokal read-only. Sebelum deploy publik atau launch live apa pun, owner (bos) harus memutuskan / menyediakan:</p>
+            <div class="table-scroll">
+              <table>
+                <thead><tr><th>Item</th><th>Status</th><th>Owner step</th></tr></thead>
+                <tbody>
+                  <tr><td data-th="Item">Nama &amp; branding launchpad</td><td data-th="Status">Dipilih: <strong>AMORPAD</strong></td><td data-th="Owner step">Logo dan warna masih terbuka.</td></tr>
+                  <tr><td data-th="Item">Config yang direview (operator-qualified policy)</td><td data-th="Status">Belum dibuat</td><td data-th="Owner step">Kualifikasi Config sesuai cek graduation-readiness di docs. Jangan pernah Config #6.</td></tr>
+                  <tr><td data-th="Item">Penerima fee (alamat creator / partner + split)</td><td data-th="Status">Belum diatur</td><td data-th="Owner step">Putuskan alamat wallet dan persentase asli. Jangan pernah bagikan private key.</td></tr>
+                  <tr><td data-th="Item">Koneksi wallet</td><td data-th="Status">Belum dipasang</td><td data-th="Owner step">Hubungkan wallet di browser owner sendiri; WalletConnect butuh konfigurasi project milik owner.</td></tr>
+                  <tr><td data-th="Item">Provider penyimpanan gambar</td><td data-th="Status">Belum terhubung</td><td data-th="Owner step">Pilih provider (mis. Cloudinary / Supabase Storage / Pinata IPFS) dan hubungkan sekali di panel operator.</td></tr>
+                  <tr><td data-th="Item">GIWA Sepolia test ETH (untuk testing live)</td><td data-th="Status">Belum didanai</td><td data-th="Owner step">Owner ambil test ETH dari faucet GIWA untuk gas launch testnet.</td></tr>
+                  <tr><td data-th="Item">Hosting / deploy publik</td><td data-th="Status">Halaman review ini</td><td data-th="Owner step">Deploy publik untuk submission Ammora adalah langkah terpisah yang butuh persetujuan owner.</td></tr>
+                  <tr><td data-th="Item">Posting di X + submit link ke Ammora</td><td data-th="Status">Belum dilakukan</td><td data-th="Owner step">Langkah owner — Muse tidak punya akun X. Submit link website publik untuk direview.</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="warn-text">Aturan keras yang dijaga di demo ini: AMMORA_SEND=0 di mana-mana · tidak ada private key / seed / API secret di mana pun · tidak ada transaksi yang dikirim · Config #6 diblokir · data demo/sampel berlabel.</p>
+            <p class="muted small">Docs: Ammora Docs launchpad builder + SDK quickstart (SDK 0.3.9, Math 0.3.0, GIWA Sepolia 91342, auto-route). Sumber kebenaran adalah docs, bukan demo ini.</p>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site">
+        Demo saja. Homepage yang jalan tidak membuktikan alur finansial live. Pembuatan, trading, graduation, dan klaim live butuh Config yang sudah direview, wallet terhubung, dan dana testnet — lihat Operator Setup.
+      </footer>
+    </div>
+
+    <script>
+      // ===== Sample data — data demo rekaan, tidak eksis on-chain =====
+      var TARGET = 6.5;
+      var TOKENS = [
+        { id: 'dsun', name: 'Demo Sunrise', symbol: 'DSUN', description: 'Sample pre-graduation token for the demo UI.', quoteReserveWeth: 1.8, baseReserve: 420000000, priceWeth: 0.0000000043, holders: 128, status: 'Pre-graduation', stage: 'ALC trading' },
+        { id: 'dkln', name: 'Demo Kiln', symbol: 'DKLN', description: 'Sample token near the graduation target.', quoteReserveWeth: 5.9, baseReserve: 310000000, priceWeth: 0.000000019, holders: 342, status: 'Pre-graduation', stage: 'ALC trading' },
+        { id: 'dhrb', name: 'Demo Harbor', symbol: 'DHRB', description: 'Sample token that reached the graduation target.', quoteReserveWeth: 6.5, baseReserve: 180000000, priceWeth: 0.000000036, holders: 517, status: 'ReadyToMigrate', stage: 'Ready to migrate — migration is a separate transaction (not run in this demo)' },
+        { id: 'dcmp', name: 'Demo Compass', symbol: 'DCMP', description: 'Sample graduated token trading on the post-graduation pool.', quoteReserveWeth: 9.2, baseReserve: 95000000, priceWeth: 0.000000097, holders: 804, status: 'Graduated', stage: 'ARL pool' }
+      ];
+
+      function pct(t) { return Math.min(100, Math.round((t.quoteReserveWeth / TARGET) * 100)); }
+      function fmt(n) { return n.toLocaleString('en-US'); }
+      function fmtWeth(x) { return String(x).replace('.', ','); }
+
+      // ===== Tabs / routing =====
+      var PAGES = ['discover', 'create', 'trade', 'graduation', 'fees', 'operator'];
+      var tabBtns = Array.prototype.slice.call(document.querySelectorAll('nav.tabs button'));
+      function routeFromHash() {
+        var id = window.location.hash.replace(/^#\/?/, '').split('?')[0];
+        return PAGES.indexOf(id) >= 0 ? id : 'discover';
+      }
+      function showPage(id) {
+        PAGES.forEach(function (p) {
+          document.getElementById('page-' + p).classList.toggle('active', p === id);
+        });
+        tabBtns.forEach(function (b) { b.setAttribute('aria-selected', b.dataset.page === id ? 'true' : 'false'); });
+      }
+      function go(id) {
+        if (window.location.hash !== '#/' + id) { window.location.hash = '#/' + id; }
+        showPage(id);
+        window.scrollTo({ top: 0 });
+      }
+      tabBtns.forEach(function (b) { b.addEventListener('click', function () { go(b.dataset.page); }); });
+      window.addEventListener('hashchange', function () { showPage(routeFromHash()); });
+
+      // ===== Discover =====
+      var grid = document.getElementById('tokenGrid');
+      TOKENS.forEach(function (t) {
+        var p = pct(t);
+        var pillClass = t.status === 'Graduated' ? 'grad' : (t.status === 'ReadyToMigrate' ? 'ready' : '');
+        var card = document.createElement('article');
+        card.className = 'token';
+        card.innerHTML =
+          '<div class="token-top">' +
+            '<div class="avatar" aria-hidden="true">' + t.symbol.slice(0, 2) + '</div>' +
+            '<div><div class="token-name"></div><div class="token-sym">$' + t.symbol + '</div></div>' +
+            '<span class="status-pill ' + pillClass + '">' + t.status + '</span>' +
+          '</div>' +
+          '<p class="token-desc"></p>' +
+          '<div class="stat-row"><span class="k">Stage</span><span class="v">' + t.stage + '</span></div>' +
+          '<div class="stat-row"><span class="k">Quote reserve</span><span class="v">' + fmtWeth(t.quoteReserveWeth) + ' WETH</span></div>' +
+          '<div class="stat-row"><span class="k">Holders (sample)</span><span class="v">' + fmt(t.holders) + '</span></div>' +
+          '<div><div class="bar"><div class="bar-fill" style="width:' + p + '%"></div></div>' +
+          '<div class="bar-label"><span>Progress ke 6,5 WETH</span><span>' + p + '%</span></div></div>';
+        card.querySelector('.token-name').textContent = t.name;
+        card.querySelector('.token-desc').textContent = t.description;
+        var btn = document.createElement('button');
+        btn.className = 'btn ghost';
+        btn.textContent = 'Trade (demo)';
+        btn.addEventListener('click', function () {
+          document.getElementById('tSelect').value = t.id;
+          updateQuote();
+          go('trade');
+        });
+        card.appendChild(btn);
+        grid.appendChild(card);
+      });
+
+      // ===== Trade — simulated quote (constant-product di reserve sampel) =====
+      var tSelect = document.getElementById('tSelect');
+      TOKENS.forEach(function (t) {
+        var opt = document.createElement('option');
+        opt.value = t.id;
+        opt.textContent = t.name + ' ($' + t.symbol + ') — ' + t.status;
+        tSelect.appendChild(opt);
+      });
+      function currentToken() {
+        for (var i = 0; i < TOKENS.length; i++) { if (TOKENS[i].id === tSelect.value) return TOKENS[i]; }
+        return TOKENS[0];
+      }
+      function updateQuote() {
+        var t = currentToken();
+        var pay = parseFloat(document.getElementById('tPay').value) || 0;
+        if (pay < 0) pay = 0;
+        document.getElementById('tReserves').textContent =
+          'Sample reserves: ' + fmtWeth(t.quoteReserveWeth) + ' WETH / ' + fmt(t.baseReserve) + ' $' + t.symbol +
+          ' · Sample price: ' + t.priceWeth + ' WETH';
+        var k = t.quoteReserveWeth * t.baseReserve;
+        var newBase = k / (t.quoteReserveWeth + pay);
+        var out = t.baseReserve - newBase;
+        document.getElementById('qPay').textContent = fmtWeth(pay) + ' WETH';
+        document.getElementById('qReceive').textContent = fmt(Math.round(out)) + ' $' + t.symbol;
+        document.getElementById('qPrice').textContent = out > 0 ? (pay / out).toExponential(3) + ' WETH per token' : '—';
+        document.getElementById('qImpact').textContent = t.quoteReserveWeth > 0 ? ((pay / t.quoteReserveWeth) * 100).toFixed(2) + '%' : '—';
+      }
+      tSelect.addEventListener('change', updateQuote);
+      document.getElementById('tPay').addEventListener('input', updateQuote);
+      updateQuote();
+
+      // ===== Graduation rows =====
+      var gradBody = document.getElementById('gradRows');
+      TOKENS.forEach(function (t) {
+        var p = pct(t);
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td data-th="Token (sample)">' + t.name + ' ($' + t.symbol + ')</td>' +
+          '<td data-th="Reserve" class="num">' + fmtWeth(t.quoteReserveWeth) + ' WETH</td>' +
+          '<td data-th="Progress"><div class="bar"><div class="bar-fill" style="width:' + p + '%"></div></div><span class="small muted">' + p + '%</span></td>' +
+          '<td data-th="Status">' + t.status + '</td>';
+        gradBody.appendChild(tr);
+      });
+
+      // ===== Create — preview only =====
+      var imageData = null;
+      document.getElementById('cImage').addEventListener('change', function (e) {
+        var f = e.target.files && e.target.files[0];
+        if (!f) return;
+        var reader = new FileReader();
+        reader.onload = function () {
+          imageData = reader.result;
+          var img = document.getElementById('cImagePreview');
+          img.src = imageData; img.hidden = false;
+        };
+        reader.readAsDataURL(f); // preview lokal saja — file tidak pernah meninggalkan browser di demo ini
+      });
+      document.getElementById('cShow').addEventListener('click', function () {
+        var name = document.getElementById('cName').value || 'Demo Token';
+        var symbol = (document.getElementById('cSymbol').value || 'DEMO').toUpperCase();
+        var desc = document.getElementById('cDesc').value;
+        var creator = document.getElementById('cCreator').value;
+        var partner = document.getElementById('cPartner').value;
+        document.getElementById('pvTitle').textContent = 'Preview — ' + name + ' ($' + symbol + ')';
+        document.getElementById('pvDesc').textContent = desc || '(no description)';
+        document.getElementById('pvShares').textContent = 'Creator fee share: ' + creator + '% · Partner fee share: ' + partner + '%';
+        var pvImg = document.getElementById('pvImage');
+        if (imageData) { pvImg.src = imageData; pvImg.hidden = false; } else { pvImg.hidden = true; }
+        document.getElementById('cPreview').hidden = false;
+      });
+
+      showPage(routeFromHash());
+    </script>
+  </body>
+</html>
